@@ -1,0 +1,38 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: oracle-db
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: oracle-db
+  template:
+    metadata:
+      labels:
+        app: oracle-db
+    spec:
+      containers:
+      - name: oracle-db
+        image: container-registry.oracle.com/database/express:21.3.0-xe
+        ports:
+          - containerPort: 1521
+        env:
+          - name: ORACLE_SID
+            value: "XE"
+          - name: ORACLE_PDB
+            value: "PDB1"
+          - name: ORACLE_PWD
+            value: "Netec_123"
+        volumeMounts:
+          - name: oracle-data
+            mountPath: /opt/oracle/oradata
+          - name: oracle-scripts
+            mountPath: /opt/oracle/scripts/startup
+      volumes:
+        - name: oracle-data
+          persistentVolumeClaim:
+            claimName: oracle-pvc
+        - name: oracle-scripts
+          configMap:
+            name: oracle-init-scripts

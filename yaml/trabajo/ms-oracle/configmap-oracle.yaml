@@ -1,0 +1,73 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: oracle-init-scripts
+data:
+  01_scripts_Usuario.sql: |
+    -- verificación de entorno
+    SELECT SYS_CONTEXT('USERENV', 'CON_NAME') AS CURRENT_CONTAINER FROM DUAL;
+
+    -- Cambiarse a la PDB
+
+    ALTER SESSION SET CONTAINER = XEPDB1;
+
+    SELECT NAME, CON_ID, CON_NAME FROM V$CONTAINERS;
+
+    ---CREAR USUARIO
+    CREATE USER inscrip_admin IDENTIFIED BY admin
+    DEFAULT TABLESPACE users
+    TEMPORARY TABLESPACE temp;
+
+    GRANT CONNECT, RESOURCE TO inscrip_admin;
+    ALTER USER inscrip_admin QUOTA UNLIMITED ON users;
+    --verificar conexion
+    CONN inscrip_admin/admin@localhost:1521/xepdb1
+  02_scripts_Tablas.sql: |
+    CONN inscrip_admin/admin@localhost:1521/xepdb1
+
+    drop table eventos;
+    drop sequence eventos_seq;
+    CREATE SEQUENCE eventos_seq START WITH 1;
+    create table eventos (id number(3) default  eventos_seq.nextval  not null, descripcion varchar2(35), fecha_evento date , ubicacion varchar2(50),  capacidad number(3) not null, primary key (id));
+
+
+    drop table participante;
+    drop sequence participante_seq;
+    CREATE SEQUENCE participante_seq START WITH 1;
+    create table participante (id number(3)  default participante_seq.nextval not null, apellidos varchar2(35) not null, nombre varchar2(35) not null, primary key (id));
+
+
+    alter table inscripcion
+    drop constraint uk_inscripcion_participante_evento;
+    drop table inscripcion;
+    drop sequence inscripcion_seq;
+    CREATE SEQUENCE inscripcion_seq START WITH 1;
+    create table inscripcion (id number(3)  default inscripcion_seq.nextval  , id_evento number(3) not null, id_participante number(3) not null,
+    constraint pk_inscripcion primary key (id) );
+    ALTER TABLE inscripcion
+    ADD CONSTRAINT uk_inscripcion_participante_evento UNIQUE  (id_participante, id_evento);
+
+
+    --PERMISOS EN TABLAS AL USER: 
+    grant select, insert,delete on eventos to inscrip_admin ;
+    grant select, insert,delete on participante to inscrip_admin ;
+    grant select, insert,delete on inscripcion to inscrip_admin ;
+
+  03_scripts_dataInicial.sql: |
+    CONN inscrip_admin/admin@localhost:1521/xepdb1
+
+    --CARGA TABLA PARTICIPANTE
+    --select * from participante;
+    insert into participante (apellidos, nombre) values ('BENZA', 'PAOLO');
+    insert into participante (apellidos, nombre) values ('QUISPE', 'CARLOS');
+    insert into participante (apellidos, nombre) values ('RIVERA', 'JULIO');
+    insert into participante (apellidos, nombre) values ('GUEVARA', 'MARCO');
+    commit;
+
+    --select * from eventos;
+    insert into eventos (descripcion ,fecha_evento , ubicacion , capacidad) values ('capacitacion de AWS',to_date('05/30/2025', 'mm/dd/yyyy'), 'Local Sistemas Uni', 2);
+    insert into eventos (descripcion ,fecha_evento , ubicacion , capacidad) values ('capacitacion de DevOps',to_date('06/15/2025', 'mm/dd/yyyy'), 'Local Sistemas Uni', 2);
+    insert into eventos (descripcion ,fecha_evento , ubicacion , capacidad) values ('capacitacion de TOGAF',to_date('06/05/2025', 'mm/dd/yyyy'), 'Local Sistemas Uni', 2);
+    
+    insert into inscripcion(id_participante, id_evento) values(1,1);
+    commit; 

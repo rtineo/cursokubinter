@@ -1,0 +1,47 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: ms-eventos-config
+data:
+  application.yml: |
+    server:
+      port: 9081
+    spring:
+      application:
+          name: ms-eventos
+      datasource:
+          driver-class-name: oracle.jdbc.OracleDriver
+          password: ${DB_PASSWORD}
+          url: jdbc:oracle:thin:@oracle-db.default.svc.cluster.local:1521/XEPDB1
+          username: ${DB_USERNAME}
+      jpa:
+          hibernate:
+              ddl-auto: update
+          properties:
+              hibernate:
+                  dialect: org.hibernate.dialect.OracleDialect
+          show-sql: true
+      profiles:
+            active: dev
+      cloud:
+        kubernetes:
+          discovery:
+            enabled: true
+            all-namespaces: true
+          secrets:
+            enable-api: true
+    management:
+      endpoints:
+        web:
+          exposure:
+            include: "*"
+      health:
+        readinessstate:
+          enabled: true
+        livenessstate:
+          enabled: true
+      endpoint:
+        health:
+          probes:
+            enabled: true
+          show-details: always

@@ -1,0 +1,8 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: oracle-init-scripts
+data:
+  init.sql: |
+    -- Aquí puedes colocar scripts de inicialización si son necesarios.
+    SELECT 'Oracle initialization complete' FROM dual;

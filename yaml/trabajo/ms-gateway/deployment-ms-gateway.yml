@@ -1,0 +1,34 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: ms-gateway
+  labels:
+    app: ms-gateway
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: ms-gateway
+  template:
+    metadata:
+      labels:
+        app: ms-gateway
+    spec:
+      containers:
+        - name: ms-gateway
+          image: rtineoregistry/ms-gateway:1.0
+          args:
+            - "--spring.config.additional-location=file:/config/application.yml"
+          ports:
+            - containerPort: 9099
+          volumeMounts:
+            - name: config-volume
+              mountPath: /config/application.yml
+              subPath: application.yml
+      volumes:
+        - name: config-volume
+          configMap:
+            name: ms-gateway-config
+            items:
+              - key: application.yml
+                path: application.yml

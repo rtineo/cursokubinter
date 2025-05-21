@@ -1,0 +1,13 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: ms-eventos
+spec:
+  selector:
+    app: ms-eventos
+  ports:
+  - protocol: TCP
+    port: 9081
+    targetPort: 9081
+    nodePort: 30081
+  type: NodePort

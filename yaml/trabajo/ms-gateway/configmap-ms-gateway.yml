@@ -1,0 +1,26 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: ms-gateway-config
+data:
+  application.yml: |
+    spring:
+      application:
+        name: ms-gateway
+      cloud:
+        gateway:
+          routes:
+            - id: ms-participantes
+              uri: lb://ms-participantes
+              predicates:
+                - Path=/api2/**
+              filters:
+                - StripPrefix=1
+            - id: ms-eventos
+              uri: lb://ms-eventos
+              predicates:
+                - Path=/api1/**
+              filters:
+                - StripPrefix=1
+    server:
+      port: 9099

@@ -1,0 +1,25 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: ms-productos-config
+  namespace: default
+data:
+  application.yml: |
+    spring:
+      application:
+        name: ms-productos
+      datasource:
+        url: jdbc:oracle:thin:@//oracle-db:1521/XEPDB1
+        username: ${DB_USERNAME}
+        password: ${DB_PASSWORD}
+        driver-class-name: oracle.jdbc.OracleDriver
+    server:
+      port: 9081
+    management:
+      endpoints:
+        web:
+          exposure:
+            include: "*"
+      endpoint:
+        health:
+          show-details: always
