@@ -1,0 +1,13 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: ms-gateway
+spec:
+  selector:
+    app: ms-gateway
+  ports:
+  - protocol: TCP
+    port: 80 # Puerto interno del servicio
+    targetPort: 9099 # Puerto del contenedor
+    #nodePort: 9099 # Puerto expuesto en el nodo
+  type: LoadBalancer

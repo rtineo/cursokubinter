@@ -1,0 +1,19 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: ms-gateway
+  labels:
+    app: ms-gateway
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: ms-gateway
+  template:
+    metadata:
+      labels:
+        app: ms-gateway
+    spec:
+      containers:
+        - name: ms-gateway
+          image: rtineoregistry/ms-gateway:1.0

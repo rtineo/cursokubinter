@@ -1,0 +1,70 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: ms-deseos
+  labels:
+    app: ms-deseos
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: ms-deseos
+  template:
+    metadata:
+      labels:
+        app: ms-deseos
+    spec:
+      containers:
+        - name: ms-deseos
+          image: rtineoregistry/ms-deseos:5.0
+          args:
+            - "--spring.config.additional-location=file:/config/application.yml"
+          ports:
+            - containerPort: 9084
+
+          livenessProbe:
+            httpGet:
+              path: /actuator/health/liveness
+              port: 9084
+            initialDelaySeconds: 30
+            periodSeconds: 15
+            timeoutSeconds: 3
+
+          readinessProbe:
+            httpGet:
+              path: /actuator/health/readiness
+              port: 9084
+            initialDelaySeconds: 15
+            periodSeconds: 10
+            timeoutSeconds: 3
+
+          env:
+            - name: POD_NAME
+              valueFrom:
+                fieldRef:
+                  fieldPath: metadata.name
+            - name: POD_ID
+              valueFrom:
+                fieldRef:
+                  fieldPath: status.podIP
+
+          resources:
+            requests:
+              cpu: "200m"
+              memory: "200Mi"
+            limits:
+              cpu: "300m"
+              memory: "300Mi"
+
+          volumeMounts:
+            - name: config-volume
+              mountPath: /config/application.yml
+              subPath: application.yml
+
+      volumes:
+        - name: config-volume
+          configMap:
+            name: ms-deseos-config
+            items:
+              - key: application.yml
+                path: application.yml

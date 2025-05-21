@@ -1,0 +1,13 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: ms-productos
+spec:
+  selector:
+    app: ms-productos
+  ports:
+  - protocol: TCP
+    port: 9081 # Puerto interno del servicio
+    targetPort: 9081 # Puerto del contenedor
+    nodePort: 30081 # Puerto expuesto en el nodo
+  type: NodePort
