@@ -1,0 +1,35 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: ms-deseos
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: ms-deseos
+  template:
+    metadata:
+      labels:
+        app: ms-deseos
+    spec:
+      containers:
+      - name: ms-deseos
+        image: rtineoregistry/ms-deseos:3.0
+        ports:
+        - containerPort: 9084
+        env:
+        - name: APP_NAME
+          valueFrom:
+            configMapKeyRef:
+              name: ms-deseos-config
+              key: APP_NAME
+        - name: SERVER_PORT
+          valueFrom:
+            configMapKeyRef:
+              name: ms-deseos-config
+              key: SERVER_PORT
+        - name: PRODUCTOS_SERVICE_URL
+          valueFrom:
+            configMapKeyRef:
+              name: ms-deseos-config
+              key: PRODUCTOS_SERVICE_URL

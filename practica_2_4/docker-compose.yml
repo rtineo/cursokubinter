@@ -1,0 +1,68 @@
+services:
+  dki-oradb:
+    container_name: dki-oradb
+    image: container-registry.oracle.com/database/express:21.3.0-xe
+    environment:
+      ORACLE_PWD: Netec_123
+      ORACLE_SID: XE
+      ORACLE_PDB: XEPDB1
+      ORACLE_CHARACTERSET: AL32UTF8
+    ports:
+      - "1521:1521"
+      - "5500:5500"
+    volumes:
+      - dki-volume:/opt/oracle/oradata
+      - ./scripts:/opt/oracle/scripts/startup
+    networks:
+      - dki-network
+    healthcheck:
+      test: ["CMD", "sh", "-c", "echo 'SELECT 1 FROM DUAL;' | sqlplus system/Netec_123@localhost:1521/XE"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+      start_period: 60s
+
+  ms-productos:
+    image: ms-productos:2.0
+    container_name: ms-productos
+    ports:
+      - "9081:9081"
+    environment:
+      USER_DEMO: Netec
+    networks:
+      - dki-network
+    depends_on:
+      dki-oradb:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://127.0.0.1:9081/productos"]
+      interval: 30s
+      timeout: 15s
+      retries: 5
+      start_period: 30s
+
+  ms-deseos:
+    image: ms-deseos:2.0
+    container_name: ms-deseos
+    ports:
+      - "9084:9084"
+    environment:
+      MS_PRODUCTOS_URL: http://ms-productos:9081/productos
+    networks:
+      - dki-network
+    depends_on:
+      ms-productos:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://127.0.0.1:9084/deseos"]
+      interval: 30s
+      timeout: 15s
+      retries: 5
+      start_period: 30s
+
+volumes:
+  dki-volume:
+
+networks:
+  dki-network:
+    external: true

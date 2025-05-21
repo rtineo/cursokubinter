@@ -1,0 +1,23 @@
+version: "3.9"
+services:
+  web:
+    container_name: dki-nginx-container  # Nombre del contenedor para el servicio web.
+    image: nginx:latest
+    ports:
+      - "8888:80"
+    networks:
+      - dki-app-network  # Nombre de la red personalizada.
+  db:
+    container_name: dki-mysql-container  # Nombre del contenedor para el servicio de base de datos.
+    image: mysql:5.7
+    environment:
+      MYSQL_ROOT_PASSWORD: Netec_123
+      MYSQL_DATABASE: dki-database
+    volumes:
+      - dki-db-volume:/var/lib/mysql  # Nombre del volumen personalizado.
+    networks:
+      - dki-app-network  # Nombre de la red personalizada.
+volumes:
+  dki-db-volume:  # Volumen personalizado para almacenar los datos de MySQL.
+networks:
+  dki-app-network:  # Red personalizada para conectar los servicios.

@@ -1,0 +1,22 @@
+version: "3.9"
+services:
+  nginx:
+    container_name: nginx
+    image: nginx:latest
+    ports:
+      - "9999:80"
+    networks:
+      - dki-app-network
+  mongodb:
+    container_name: mongodb
+    image: mongo:latest
+    ports:
+      - "27017:27017"
+    volumes:
+      - dki-db-volume:/data/db
+    networks:
+      - dki-app-network 
+volumes:
+  dki-db-volume:  # Volumen personalizado para almacenar los datos de MySQL.
+networks:
+  dki-app-network: 
